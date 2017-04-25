@@ -24,7 +24,7 @@
         "php": ">=7.1",
         "psr/log": "~1.0",
         "psr/container": "~1.0",
-        "psr/http-message": "~1.0"
+        "phulsar/stack": "~1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "~6.0"
