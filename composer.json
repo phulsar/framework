@@ -1,5 +1,5 @@
 {
-    "name": "phulsar/root",
+    "name": "phulsar/framework",
     "description": "PHulsar Framework Foundation",
     "type": "library",
     "license": "MIT",
