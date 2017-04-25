@@ -53,7 +53,7 @@ class Service extends ServiceMethod implements ServiceInterface
     /**
      * @var bool
      */
-    protected $singleton;
+    protected $singleton = false;
 
     /**
      * Service constructor.
@@ -188,15 +188,44 @@ class Service extends ServiceMethod implements ServiceInterface
      *
      * @param DependencyContainerInterface $dependencyContainer
      * @param array $arguments
-     * @param bool $fresh
+     * @param array $optionalArguments
      * @return mixed
      */
-    public function marshal(DependencyContainerInterface $dependencyContainer, array $arguments = [], $fresh = false)
-    {
+    public function marshal(
+        DependencyContainerInterface $dependencyContainer,
+        array $arguments = [],
+        $optionalArguments = []
+    ) {
         if ( $this->singleton && is_object($this->instance) ) {
             return $this->instance;
         }
 
+        $instance = $this->marshalFresh(
+            $dependencyContainer,
+            $arguments,
+            $optionalArguments
+        );
+
+        if ( $this->singleton ) {
+            $this->instance = $instance;
+        }
+
+        return $instance;
+    }
+
+    /**
+     * marshals a new service instance, regardless if the service utilizes singleton.
+     *
+     * @param DependencyContainerInterface $dependencyContainer
+     * @param array $arguments
+     * @param string[] $optionalArguments
+     * @return mixed
+     */
+    public function marshalFresh(
+        DependencyContainerInterface $dependencyContainer,
+        array $arguments = [],
+        array $optionalArguments = []
+    ) {
         $arguments = array_replace($this->values, $arguments);
 
         if ( $this->factory ) {
@@ -208,7 +237,7 @@ class Service extends ServiceMethod implements ServiceInterface
                     ? $dependencyContainer->getReflectionCache()->reflectCallable($this->factory)
                     : $dependencyContainer->getReflectionCache()->reflectClassConstructor($this->concrete),
                 $arguments,
-                $this->optionalParameters,
+                array_replace($this->optionalParameters, $optionalArguments),
                 $dependencyContainer
             );
 
@@ -217,21 +246,9 @@ class Service extends ServiceMethod implements ServiceInterface
         }
 
         foreach ( $this->methods as $method => $object ) {
-
+            $dependencyContainer->call([$instance, $method], $object->getParameters(), $object->getOptionalParameters());
         }
-    }
 
-    /**
-     * marshals a new service instance, regardless if the service utilizes singleton.
-     *
-     * @param DependencyContainerInterface $dependencyContainer
-     * @param array $arguments
-     * @param array $optionalArguments
-     * @return mixed
-     */
-    public function marshalFresh(DependencyContainerInterface $dependencyContainer, array $arguments = [], $optionalArguments = [])
-    {
-        // TODO: Implement marshalFresh() method.
+        return $instance;
     }
-    
 }

@@ -109,8 +109,8 @@ interface ServiceInterface extends ServiceMethodInterface
      *
      * @param DependencyContainerInterface $dependencyContainer
      * @param array $arguments
-     * @param array $optionalArguments
+     * @param string[] $optionalArguments
      * @return mixed
      */
-    public function marshalFresh(DependencyContainerInterface $dependencyContainer, array $arguments = [], $optionalArguments = []);
+    public function marshalFresh(DependencyContainerInterface $dependencyContainer, array $arguments = [], array $optionalArguments = []);
 }

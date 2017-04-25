@@ -33,7 +33,7 @@ interface DependencyContainerInterface
 
     /**
      * forks the current container. Optionally wraps further orchestration of the container fork into the optionally
-     * provided callback.
+     * provided callback. A fork shares the same reflection cache as the current container.
      *
      * @param callable|null $callback
      * @return DependencyContainerInterface
@@ -45,9 +45,10 @@ interface DependencyContainerInterface
      *
      * @param callable $callback
      * @param array $arguments
+     * @param string[] $optionalParameters
      * @return mixed
      */
-    public function call(callable $callback, array $arguments = []);
+    public function call(callable $callback, array $arguments = [], array $optionalParameters = []);
 
     /**
      * marshals the instance for the provided interface. Optionally provided arguments supersede orchestrated
@@ -55,16 +56,21 @@ interface DependencyContainerInterface
      *
      * @param string $interface
      * @param array $arguments
+     * @param string[] $optionalParameters
      * @return mixed
      */
-    public function make(string $interface, array $arguments = []);
+    public function make(string $interface, array $arguments = [], array $optionalParameters = []);
 
     /**
+     * marshals a fresh instance for the provided interface. Optionally provided arguments supersede orchestrated
+     * parameters at the service registration for this instance.
+     *
      * @param string $interface
      * @param array $arguments
+     * @param string[] $optionalParameters
      * @return mixed
      */
-    public function fresh(string $interface, array $arguments = []);
+    public function fresh(string $interface, array $arguments = [], array $optionalParameters = []);
 
     /**
      * returns the reflection cache of the current container.

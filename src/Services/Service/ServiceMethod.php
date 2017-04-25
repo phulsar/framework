@@ -40,6 +40,16 @@ class ServiceMethod implements ServiceMethodInterface
     }
 
     /**
+     * retruns an array with values assigned to their parameter names.
+     *
+     * @return array
+     */
+    public function getParameters(): array
+    {
+        return $this->values;
+    }
+
+    /**
      * ensures that the provided optional parameters are fulfilled.
      *
      * @param \string[] ...$parameters
@@ -53,6 +63,16 @@ class ServiceMethod implements ServiceMethodInterface
         );
 
         return $this;
+    }
+
+    /**
+     * returns an array with optional parameters that must be resolved.
+     *
+     * @return array
+     */
+    public function getOptionalParameters(): array
+    {
+        return $this->optionalParameters;
     }
 
     /**
