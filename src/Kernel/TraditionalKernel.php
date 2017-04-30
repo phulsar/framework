@@ -11,47 +11,38 @@
 namespace Phulsar\Kernel;
 
 
+use Phulsar\Application;
 use Phulsar\Contract\ApplicationKernelInterface;
-use Phulsar\Contract\DependencyContainerInterface;
-use Phulsar\Contract\ProviderInterface;
 use Phulsar\Stack\HttpKernelInterface;
-use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Log\LoggerInterface;
 
 class TraditionalKernel implements HttpKernelInterface, ApplicationKernelInterface
 {
-    protected $container;
-    protected $services;
-    protected $logger;
-
     /**
-     * ApplicationKernelInterface constructor.
-     * @param DependencyContainerInterface $dependencyContainer
-     * @param ContainerInterface $container
-     * @param LoggerInterface $logger
-     */
-    public function __construct(
-        DependencyContainerInterface $dependencyContainer,
-        ContainerInterface $container,
-        LoggerInterface $logger
-    ) {
-        $this->services = $dependencyContainer;
-        $this->container = $container;
-        $this->logger = $logger;
-    }
-
-
-    /**
-     * registers providers to the application.
+     * boots the kernel under the circumstances of the actual application container.
      *
-     * @param ProviderInterface[] ...$providers
+     * @param Application $application
      * @return mixed
      */
-    public function register(ProviderInterface ... $providers)
+    public function boot(Application $application)
     {
-        // TODO: Implement register() method.
+        $services = $application->getDependencyContainer();
+
+        if ( ! $services->knows(HttpKernelInterface::class) ) {
+            $services->service(HttpKernelInterface::class)->withConcrete($this)->singleton();
+        }
+    }
+
+    /**
+     * runs the kernel under the circumstances of the actual application container.
+     *
+     * @param Application $application
+     * @return mixed
+     */
+    public function run(Application $application)
+    {
+        // TODO: Implement run() method.
     }
 
     /**

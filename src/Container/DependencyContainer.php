@@ -76,6 +76,19 @@ class DependencyContainer implements DependencyContainerInterface
     }
 
     /**
+     * checks whether the provided interface is known to the current container.
+     *
+     * @param string $interface
+     * @return bool
+     */
+    public function knows(string $interface): bool
+    {
+        $key = strtolower(trim($interface, "\\"));
+
+        return array_key_exists($key, $this->services);
+    }
+
+    /**
      * forks the current container. Optionally wraps further orchestration of the container fork into the optionally
      * provided callback. A fork shares the same reflection cache as the current container.
      *

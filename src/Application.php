@@ -29,13 +29,12 @@ class Application extends Container
     use ServiceAwareContainerTrait;
 
     protected $dependencyContainer;
-    protected $providers = [];
     protected $booted = false;
 
     public function __construct(array $settings)
     {
         $settings['debug'] = $settings['debug'] ?? false;
-        $settings['kernel.class'] = $settings['kernel']['class'] ?? TraditionalKernel::class;
+        $settings['booted'] = false;
 
         $this->dependencyContainer = new DependencyContainer();
 
@@ -54,49 +53,44 @@ class Application extends Container
 
     public function boot()
     {
-        if ( $this->booted ) {
+        if ( $this->get('booted') ) {
             throw new BootstrapException('Application already booted');
         }
 
-        $kernelClass = $this->get('kernel.class');
-        $kernel = new $kernelClass($this->getDependencyContainer(), $this);
-
-        if ( ! $kernel instanceof HttpKernelInterface ) {
-            throw new ServerException('Provided Kernel does not support HttpKernelInterface');
+        if ( ! $this->getDependencyContainer()->knows(ApplicationKernelInterface::class) ) {
+            $this
+                ->getDependencyContainer()
+                ->service(ApplicationKernelInterface::class, TraditionalKernel::class)
+                ->singleton(true)
+            ;
+        }
+        else {
+            $this
+                ->getDependencyContainer()
+                ->service(ApplicationKernelInterface::class)
+                ->singleton(true)
+            ;
         }
 
-        if ( $kernel instanceof ApplicationKernelInterface ) {
-            $kernel->register(... array_values($this->providers));
-        }
+        $kernel = $this->getDependencyContainer()->make(ApplicationKernelInterface::class);
 
-        $this
-            ->getDependencyContainer()
-            ->service(HttpKernelInterface::class)
-            ->singleton()
-            ->withConcrete($kernel)
-        ;
+        /** @var ApplicationKernelInterface $kernel */
+        $kernel->boot($this);
 
-        $this->booted = true;
+        $this->items['booted'] = true;
     }
 
     public function register(ProviderInterface ... $providers)
     {
-        $providerCollection = array_combine(
-            array_map(function(ProviderInterface $provider) {
-                return get_class($provider);
-            }, $providers),
-            $providers
-        );
 
-        $this->providers = array_replace($this->providers, $providerCollection);
     }
 
-    public function handle(ServerRequestInterface $request): ResponseInterface
+    public function run()
     {
-        $kernel = $this->getDependencyContainer()->make(HttpKernelInterface::class);
+        if ( ! $this->get('booted') ) {
+            $this->boot();
+        }
 
-        /** @var HttpKernelInterface $kernel */
-
-        return $kernel->handle($request);
+        $this->getDependencyContainer()->make(ApplicationKernelInterface::class)->run($this);
     }
 }

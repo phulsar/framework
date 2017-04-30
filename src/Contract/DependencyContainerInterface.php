@@ -32,6 +32,14 @@ interface DependencyContainerInterface
     public function factory(string $interface, callable $callback): ServiceInterface;
 
     /**
+     * checks whether the provided interface is known to the current container.
+     *
+     * @param string $interface
+     * @return bool
+     */
+    public function knows(string $interface): bool;
+
+    /**
      * forks the current container. Optionally wraps further orchestration of the container fork into the optionally
      * provided callback. A fork shares the same reflection cache as the current container.
      *

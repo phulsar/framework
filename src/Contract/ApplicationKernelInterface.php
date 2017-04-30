@@ -11,28 +11,23 @@
 namespace Phulsar\Contract;
 
 
-use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
+use Phulsar\Application;
 
 interface ApplicationKernelInterface
 {
     /**
-     * ApplicationKernelInterface constructor.
-     * @param DependencyContainerInterface $dependencyContainer
-     * @param ContainerInterface $container
-     * @param LoggerInterface $logger
-     */
-    public function __construct(
-        DependencyContainerInterface $dependencyContainer,
-        ContainerInterface $container,
-        LoggerInterface $logger
-    );
-
-    /**
-     * registers providers to the application.
+     * boots the kernel under the circumstances of the actual application container.
      *
-     * @param ProviderInterface[] ...$providers
+     * @param Application $application
      * @return mixed
      */
-    public function register(ProviderInterface ... $providers);
+    public function boot(Application $application);
+
+    /**
+     * runs the kernel under the circumstances of the actual application container.
+     *
+     * @param Application $application
+     * @return mixed
+     */
+    public function run(Application $application);
 }
